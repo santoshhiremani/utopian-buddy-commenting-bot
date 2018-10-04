@@ -12,7 +12,14 @@ function initBot(){
         if (err === null) {
             for (let discussion of result) {
                 // get the last permlink and author on utopian
-                getContributions(discussion.author,discussion.permlink);
+                steem.api.getContentReplies(discussion.author, discussion.permlink, (err, comments) => {
+                   if (err === null) {
+                     const bot_comment = comments.filter(function (el) { return el.author === 'utopian-buddy'});
+                      if(bot_comment == 0){
+                            getContributions(discussion.author,discussion.permlink);
+                      }
+                   }
+                })
             }
         } else {
             console.log(err);
