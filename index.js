@@ -22,7 +22,7 @@ function initBot(){
 
 //get List of contributions on utopian
 function getContributions(author, permlink) {
-    const url = `https://utopian.rocks/api/posts?author=`+author;
+    var url = `https://utopian.rocks/api/posts?author=`+author;
     var m_body = '';
     https.get(url, function(res) {
         res.on('data', function(chunk) {
@@ -32,7 +32,7 @@ function getContributions(author, permlink) {
             try {
                 const response = JSON.parse(m_body);
                 if (response.length > 0) {
-                    const contributionsObj = {
+                    var contributionsObj = {
                         "total": response.length,
                         "approved": 0,
                         "staff_picked": 0,
@@ -82,18 +82,19 @@ function getContributions(author, permlink) {
 
 //comment on Author post
 function commentOnAuthorPost(contributions, author, permlink) {
-    const str = '';
+    console.log(author,permlink)
+    var str = '';
     for(const key in contributions.category) {
         const value = contributions.category[key];
         str += "<li>"+ key.replace(key[0], key[0].toUpperCase()) +"  : <strong>"+ value.length +"</strong></li>"
     }
 
-    const contribution_category = "<ul type='square'>"+str+"</ul>";
-    const payout =  "Your total payout for <strong>"+contributions.approved.length+"</strong> contributions is <strong>$ "+contributions.total_payout.toFixed(2)+"</strong>";
+    var contribution_category = "<ul type='square'>"+str+"</ul>";
+    var payout =  "Your total payout for <strong>"+contributions.approved.length+"</strong> contributions is <strong>$ "+contributions.total_payout.toFixed(2)+"</strong>";
 
-    const existing_contributor = "So far you've submitted <strong>"+ contributions.total +"</strong> contributions on Utopian. Keep up the good work! \n"+
+    var existing_contributor = "So far you've submitted <strong>"+ contributions.total +"</strong> contributions on Utopian. Keep up the good work! \n"+
                            "<p>Your <strong>"+contributions.approved.length + "</strong> contributions have been appoved and upvoted by Utopian</p><p><strong>Here is your contributions details..</strong></p>";
-    const comment_body = (contributions.total > 1) ? existing_contributor+'\n'+contribution_category+'\n'+payout : "Congratulations on your first contribution to Utopian!"; // Body
+    var comment_body = (contributions.total > 1) ? existing_contributor+'\n'+contribution_category+'\n'+payout : "Congratulations on your first contribution to Utopian!"; // Body
 
     steem.broadcast.comment(
         config.wif,
