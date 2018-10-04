@@ -2,7 +2,7 @@ const config = require('./config.json');
 const steem = require('steem');
 const https = require('https');
 
-
+//check utopian posts every 5 min
 setInterval(initBot, 300000);
 
 
