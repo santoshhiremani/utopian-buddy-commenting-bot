@@ -15,7 +15,8 @@ function initBot(){
                 steem.api.getContentReplies(discussion.author, discussion.permlink, (err, comments) => {
                    if (err === null) {
                      const bot_comment = comments.filter(function (el) { return el.author === 'utopian-buddy'});
-                      if(bot_comment == 0){
+                     console.log("Bot Comment ", bot_comment.length);
+                      if(bot_comment.length == 0){
                             getContributions(discussion.author,discussion.permlink);
                       }
                    }
@@ -38,6 +39,7 @@ function getContributions(author, permlink) {
         res.on('end', function() {
             try {
                 const response = JSON.parse(m_body);
+                console.log("Total Contributions ", response.length);
                 if (response.length > 0) {
                     var contributionsObj = {
                         "total": response.length,
@@ -60,6 +62,7 @@ function getContributions(author, permlink) {
                     contributionsObj['category']['taskrequests'] = response.filter(function (el) { return el.category === 'task-requests' && el.voted_on === true;});
                     contributionsObj['category']['tutorials'] = response.filter(function (el) { return el.category === 'tutorials' && el.voted_on === true;});
                     contributionsObj['category']['videotutorials'] = response.filter(function (el) { return el.category === 'video-tutorials' && el.voted_on === true;});
+                    contributionsObj['category']['translations'] = response.filter(function (el) { return el.category === 'translations' && el.voted_on === true;});
                     contributionsObj['category']['visibility'] = response.filter(function (el) { return el.category === 'visibility' && el.voted_on === true;});
 
                     response.forEach(function(contribution) {
