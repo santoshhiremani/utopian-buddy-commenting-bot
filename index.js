@@ -65,6 +65,7 @@ function getContributions(author, permlink) {
                     contributionsObj['category']['translations'] = response.filter(function (el) { return el.category === 'translations' && el.voted_on === true;});
                     contributionsObj['category']['iamutopian'] = response.filter(function (el) { return el.category === 'iamutopian' && el.voted_on === true;});      
                     contributionsObj['category']['task'] = response.filter(function (el) { return el.category.startsWith("task") && el.voted_on === true;});
+                    contributionsObj['category']['ideas'] = response.filter(function (el) { return el.category === 'ideas' && el.voted_on === true;});
                     contributionsObj['category']['visibility'] = response.filter(function (el) { return el.category === 'visibility' && el.voted_on === true;});
 
                     response.forEach(function(contribution) {
