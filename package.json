@@ -1,0 +1,7 @@
+{
+  "name": "",
+  "version": "",
+  "dependencies": {
+    "steem": "^0.7.2"
+  }
+}
