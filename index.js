@@ -121,7 +121,7 @@ function commentOnAuthorPost(contributions, author, permlink) {
         'Hey, '+ '@'+author+'\n'  +
         '<p><strong>Thank you for your contribution </strong></p>' +
         comment_body,
-        { tags: ['utopian-io'], app: 'utopian-buddy' }, // Json Metadata
+        { tags: ['utopian-io'], app: 'chronicled' }, // Json Metadata
         function(err, result) {
             console.log("RESULT------->", err, result);
         }
