@@ -95,7 +95,7 @@ function getContributions(author, permlink) {
 
 //comment on Author post
 function commentOnAuthorPost(contributions, author, permlink) {
-    console.log(author,permlink)
+  console.log(author,permlink)
     var str = '';
     for(const key in contributions.category) {
         const value = contributions.category[key];
@@ -105,8 +105,10 @@ function commentOnAuthorPost(contributions, author, permlink) {
     var contribution_category = "<ul type='square'>"+str+"</ul>";
     var payout =  "Your total payout for <strong>"+contributions.approved.length+"</strong> contributions is <strong>$ "+contributions.total_payout.toFixed(2)+"</strong>";
 
+    var approved_contributor = (contributions.approved.length > 1) ? "Here is your contributions details.." : "";
+
     var existing_contributor = "So far you've submitted <strong>"+ contributions.total +"</strong> contributions on Utopian. Keep up the good work! \n"+
-                           "<p>Your <strong>"+contributions.approved.length + "</strong> contributions have been appoved and upvoted by Utopian</p><p><strong>Here is your contributions details..</strong></p>";
+                           "<p>Your <strong>"+contributions.approved.length + "</strong> contributions have been appoved and upvoted by Utopian</p><p><strong>"+approved_contributor+"</strong></p>";
     var comment_body = (contributions.total > 1) ? existing_contributor+'\n'+contribution_category+'\n'+payout : "Congratulations on your first contribution to Utopian!"; // Body
 
     steem.broadcast.comment(
@@ -114,12 +116,12 @@ function commentOnAuthorPost(contributions, author, permlink) {
         author, // parent author
         permlink, // Main tag
         'chronicled', // Author
-        permlink + '-chronicled-post-stats', // Permlink
+        permlink + '-chronicled-stats', // Permlink
         '', // Title
         'Hey, '+ '@'+author+'\n'  +
         '<p><strong>Thank you for your contribution </strong></p>' +
         comment_body,
-        { tags: ['utopian-io'], app: 'chronicled' }, // Json Metadata
+        { tags: ['utopian-io'], app: 'utopian-buddy' }, // Json Metadata
         function(err, result) {
             console.log("RESULT------->", err, result);
         }
