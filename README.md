@@ -1,4 +1,4 @@
-# Utopian-buddy-bot
+# Utopian-contribution-history-bot
 A bot that will provide previous contributions on utopian
 To use it locally:
 1:- Clone repo
