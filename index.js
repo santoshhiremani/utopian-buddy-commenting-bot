@@ -14,7 +14,7 @@ function initBot(){
                 // get the last permlink and author on utopian
                 steem.api.getContentReplies(discussion.author, discussion.permlink, (err, comments) => {
                    if (err === null) {
-                     const bot_comment = comments.filter(function (el) { return el.author === 'utopian-buddy'});
+                     const bot_comment = comments.filter(function (el) { return el.author === 'chronicled'});
                      console.log("Bot Comment ", bot_comment.length);
                       if(bot_comment.length == 0){
                             getContributions(discussion.author,discussion.permlink);
@@ -113,13 +113,13 @@ function commentOnAuthorPost(contributions, author, permlink) {
         config.wif,
         author, // parent author
         permlink, // Main tag
-        'utopian-buddy', // Author
-        permlink + '-utopian-post-stats', // Permlink
+        'chronicled', // Author
+        permlink + '-chronicled-post-stats', // Permlink
         '', // Title
         'Hey, '+ '@'+author+'\n'  +
         '<p><strong>Thank you for your contribution </strong></p>' +
         comment_body,
-        { tags: ['utopian-io'], app: 'utopian-buddy' }, // Json Metadata
+        { tags: ['utopian-io'], app: 'chronicled' }, // Json Metadata
         function(err, result) {
             console.log("RESULT------->", err, result);
         }
