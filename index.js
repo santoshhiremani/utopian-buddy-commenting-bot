@@ -47,6 +47,9 @@ function getContributions(author, permlink) {
                         "staff_picked": 0,
                         "total_payout": 0.0
                     };
+                    
+                    var first_contribution_date = timeConverter(response[0].created.$date);
+                    
                     contributionsObj['category'] = {};
                     contributionsObj['approved'] = response.filter(function (el) { return el.voted_on == true;});
                     contributionsObj['staff_picked'] = response.filter(function (el) { return el.staff_picked == true;});
@@ -81,7 +84,7 @@ function getContributions(author, permlink) {
                         }
                     }
 
-                    commentOnAuthorPost(contributionsObj, author, permlink);
+                    commentOnAuthorPost(contributionsObj, first_contribution_date, author, permlink);
                 }
             } catch (e) {
                 console.log('Err' + e);
@@ -94,7 +97,7 @@ function getContributions(author, permlink) {
 }
 
 //comment on Author post
-function commentOnAuthorPost(contributions, author, permlink) {
+function commentOnAuthorPost(contributions, date, author, permlink) {
   console.log(author,permlink)
     var str = '';
     for(const key in contributions.category) {
@@ -107,7 +110,7 @@ function commentOnAuthorPost(contributions, author, permlink) {
 
     var approved_contributor = (contributions.approved.length > 1) ? "Here is your contributions details.." : "";
 
-    var existing_contributor = "So far you've submitted <strong>"+ contributions.total +"</strong> contributions on Utopian. Keep up the good work! \n"+
+    var existing_contributor = "Since" + date + "you've submitted <strong>"+ contributions.total +"</strong> contributions on Utopian. Keep up the good work! \n"+
                            "<p>Your <strong>"+contributions.approved.length + "</strong> contributions have been appoved and upvoted by Utopian</p><p><strong>"+approved_contributor+"</strong></p>";
     var comment_body = (contributions.total > 1) ? existing_contributor+'\n'+contribution_category+'\n'+payout : "Congratulations on your first contribution to Utopian!"; // Body
 
@@ -119,11 +122,25 @@ function commentOnAuthorPost(contributions, author, permlink) {
         permlink + '-chronicled-stats', // Permlink
         '', // Title
         'Hey, '+ '@'+author+'\n'  +
-        '<p><strong>Thank you for your contribution </strong></p>' +
-        comment_body,
+       '<p><strong>Thank you for your contribution </strong></p>' +
+        comment_body + "<p>Upvote chronicled's comment to Support!</p>\n" + 
+        "[Disclaimer: This is not official info from utopian \n, If you feel something need to improve please comment here]",
         { tags: ['utopian-io'], app: 'chronicled' }, // Json Metadata
         function(err, result) {
             console.log("RESULT------->", err, result);
         }
     );
+}
+
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
 }
