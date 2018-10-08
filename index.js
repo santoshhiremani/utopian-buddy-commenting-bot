@@ -16,7 +16,7 @@ function initBot(){
                    if (err === null) {
                      const bot_comment = comments.filter(function (el) { return el.author === 'chronicled'});
                      console.log("Bot Comment ", bot_comment.length);
-                      if(bot_comment.length == 0){
+                      if(bot_comment.length === 0){
                             getContributions(discussion.author,discussion.permlink);
                       }
                    }
@@ -51,8 +51,8 @@ function getContributions(author, permlink) {
                     var first_contribution_date = timeConverter(response[0].created.$date);
                     
                     contributionsObj['category'] = {};
-                    contributionsObj['approved'] = response.filter(function (el) { return el.voted_on == true;});
-                    contributionsObj['staff_picked'] = response.filter(function (el) { return el.staff_picked == true;});
+                    contributionsObj['approved'] = response.filter(function (el) { return el.voted_on === true;});
+                    contributionsObj['staff_picked'] = response.filter(function (el) { return el.staff_picked === true;});
 
                     contributionsObj['category']['analysis'] = response.filter(function (el) { return el.category === 'analysis' && el.voted_on === true;});
                     contributionsObj['category']['blog'] = response.filter(function (el) { return el.category === 'blog' && el.voted_on === true;});
@@ -79,7 +79,7 @@ function getContributions(author, permlink) {
 
                     for(var key in contributionsObj.category) {
                         const value = contributionsObj.category[key];
-                        if(value.length == 0){
+                        if(value.length === 0){
                             delete contributionsObj.category[key];
                         }
                     }
