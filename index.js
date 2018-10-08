@@ -1,10 +1,19 @@
-const config = require('./config.json');
+const fs = require('fs');
 const steem = require('steem');
 const https = require('https');
+const config = require('./Util/config.json');
+const userTracker = require('./Util/user-mute-check');
 
 //check utopian posts every 5 min
 setInterval(initBot, 300000);
 
+let users = [];
+
+var dir = './data';
+
+if(fs.existsSync(dir)) {
+    if(fs.existsSync('data/users.json')) users = require('./data/users');
+} else fs.mkdirSync(dir);
 
 //init bot
 function initBot(){
@@ -17,7 +26,10 @@ function initBot(){
                      const bot_comment = comments.filter(function (el) { return el.author === 'chronicled'});
                      console.log("Bot Comment ", bot_comment.length);
                       if(bot_comment.length === 0){
+                          var userslist = JSON.parse(users).filter(function (user) { return user === author;});
+                          if(userslist.length != 1){
                             getContributions(discussion.author,discussion.permlink);
+                          }
                       }
                    }
                 })
@@ -47,9 +59,9 @@ function getContributions(author, permlink) {
                         "staff_picked": 0,
                         "total_payout": 0.0
                     };
-                    
+
                     var first_contribution_date = timeConverter(response[0].created.$date);
-                    
+
                     contributionsObj['category'] = {};
                     contributionsObj['approved'] = response.filter(function (el) { return el.voted_on === true;});
                     contributionsObj['staff_picked'] = response.filter(function (el) { return el.staff_picked === true;});
@@ -66,7 +78,7 @@ function getContributions(author, permlink) {
                     contributionsObj['category']['tutorials'] = response.filter(function (el) { return el.category === 'tutorials' && el.voted_on === true;});
                     contributionsObj['category']['videotutorials'] = response.filter(function (el) { return el.category === 'video-tutorials' && el.voted_on === true;});
                     contributionsObj['category']['translations'] = response.filter(function (el) { return el.category === 'translations' && el.voted_on === true;});
-                    contributionsObj['category']['iamutopian'] = response.filter(function (el) { return el.category === 'iamutopian' && el.voted_on === true;});      
+                    contributionsObj['category']['iamutopian'] = response.filter(function (el) { return el.category === 'iamutopian' && el.voted_on === true;});
                     contributionsObj['category']['task'] = response.filter(function (el) { return el.category.startsWith("task") && el.voted_on === true;});
                     contributionsObj['category']['ideas'] = response.filter(function (el) { return el.category === 'ideas' && el.voted_on === true;});
                     contributionsObj['category']['visibility'] = response.filter(function (el) { return el.category === 'visibility' && el.voted_on === true;});
@@ -123,14 +135,50 @@ function commentOnAuthorPost(contributions, date, author, permlink) {
         '', // Title
         'Hey, '+ '@'+author+'\n'  +
        '<p><strong>Thank you for your contribution </strong></p>' +
-        comment_body + "<p>Upvote chronicled's comment to Support!</p>\n" + 
-        "[Disclaimer: This is not official info from utopian \n, If you feel something need to improve please comment here]",
+        comment_body + "<p>Upvote chronicled's comment to Support!</p>\n" +
+        "<p><small>[Disclaimer: This is not official info from utopian \n If you don't want this comment on your next post reply as `!stop` or `!start` to start again ]</small></p> \n"
         { tags: ['utopian-io'], app: 'chronicled' }, // Json Metadata
         function(err, result) {
             console.log("RESULT------->", err, result);
         }
     );
 }
+
+//watch user comment and add into mutelist
+steem.api.streamOperations((err, operation) => {
+   if(err) return;
+   if(operation && operation[0] === 'comment') {
+     let body = operation[1].body.split(/ +/g);
+     const parentAuthor = operation[1].parent_author;
+     if (parentAuthor === "chronicled") {
+         let stop = body.indexOf('!stop') // !stop
+         let start = body.indexOf('!start') // !start
+         const author = operation[1].author;
+         const permlink = operation[1].permlink;
+         const json_metadata = operation[1].json_metadata;
+
+         if(stop === 1){
+           const isAdded = userTracker.addIgnored(users, author);
+           if(isAdded){
+             steem.broadcast.comment(config.wif, author, permlink, 'chronicled', permlink + 'chronicled-response', '', "Hey " + "@"+author+ "\n I have considered your request..! \n You'll not get comment on your next Utopian contribution's post \n Thank you for your support!", JSON.parse(json_metadata), function(err, result) {
+                console.log(err, result);
+             });
+           }
+         } else if(stop === 1){
+           const isRemoved = userTracker.removeIgnored(users, author);
+           if(isRemoved){
+             steem.broadcast.comment(config.wif, author, permlink, 'chronicled', permlink + 'chronicled-response', '', "Hey " + "@"+author+ "\n I have considered your request..! \n You'll start recieving comment on your next Utopian contribution's post \n Thank you for your support!", JSON.parse(json_metadata), function(err, result) {
+                console.log(err, result);
+             }); 
+           }
+         } else {
+           steem.broadcast.comment(config.wif, author, permlink, 'chronicled', permlink + 'chronicled-response', '', "Hey " + "@"+author+ "\n Either you have to use `!start` or `!stop` to make it work", JSON.parse(json_metadata), function(err, result) {
+              console.log(err, result);
+           });
+         }
+      }
+   }
+});
 
 function timeConverter(UNIX_timestamp){
   var a = new Date(UNIX_timestamp);
